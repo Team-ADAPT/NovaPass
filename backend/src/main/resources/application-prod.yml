@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    show-sql: false
+  
+  security:
+    jwt:
+      secret: ${JWT_SECRET}
+
+logging:
+  level:
+    com.novapass: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+
+server:
+  error:
+    include-message: never
+    include-binding-errors: never

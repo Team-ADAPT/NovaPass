@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: novapass-db
+    environment:
+      POSTGRES_DB: novapass
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - novapass-network
+
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-backend
+    container_name: novapass-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/novapass
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-change-this-secret-key-in-production}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - novapass-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  novapass-network:
+    driver: bridge
