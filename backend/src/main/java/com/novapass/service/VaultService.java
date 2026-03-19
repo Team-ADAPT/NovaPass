@@ -66,9 +66,9 @@ public class VaultService {
 
     @Transactional
     public void delete(Long userId, Long itemId) {
-        findOwned(userId, itemId); // ownership check
-        vaultItemRepository.deleteByIdAndUserId(itemId, userId);
-        auditService.log(userRepository.getReferenceById(userId), "VAULT_DELETE", "vault_item", itemId, null, null);
+        int deleted = vaultItemRepository.deleteByIdAndUserId(itemId, userId);
+        if (deleted == 0) throw new ResourceNotFoundException("Vault item not found");
+        auditService.log(userId, "VAULT_DELETE", "vault_item", itemId, null, null);
     }
 
     public SyncResponse sync(Long userId, SyncRequest req) {

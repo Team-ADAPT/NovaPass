@@ -40,6 +40,9 @@
         <!-- Rate limiting -->
         <dependency><groupId>com.bucket4j</groupId><artifactId>bucket4j-core</artifactId><version>8.10.1</version></dependency>
 
+        <!-- Caffeine cache — used by RateLimitFilter for bounded, auto-evicting IP buckets -->
+        <dependency><groupId>com.github.ben-manes.caffeine</groupId><artifactId>caffeine</artifactId></dependency>
+
         <!-- Flyway Database Migrations -->
         <dependency><groupId>org.flywaydb</groupId><artifactId>flyway-core</artifactId></dependency>
         <dependency><groupId>org.flywaydb</groupId><artifactId>flyway-database-postgresql</artifactId><version>10.4.1</version></dependency>

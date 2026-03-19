@@ -13,6 +13,11 @@ export interface VaultEntry {
   username?: string;
   password?: string;
   notes?: string;
+  // TOTP fields
+  totpSecret?: string;
+  // Passkey fields (stored credential info for reference)
+  passkeyUsername?: string;
+  passkeyProvider?: string; // e.g. 'Google', 'Apple', 'GitHub'
 }
 
 interface VaultStore {
@@ -52,9 +57,9 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
   addItem: async (item) => {
     const { encKey } = get();
     if (!encKey) throw new Error('Vault locked');
-    const { username, password, notes, ...meta } = item;
+    const { username, password, notes, totpSecret, passkeyUsername, passkeyProvider, ...meta } = item;
     const encryptedData = await encryptVaultItem(
-      JSON.stringify({ username, password, notes }), encKey
+      JSON.stringify({ username, password, notes, totpSecret, passkeyUsername, passkeyProvider }), encKey
     );
     const { data } = await vaultApi.create({ ...meta, encryptedData });
     const plain = JSON.parse(await decryptVaultItem(data.encryptedData, encKey));
@@ -69,9 +74,9 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
     if (!encKey) throw new Error('Vault locked');
     const existing = items.find(i => i.id === id)!;
     const merged = { ...existing, ...updates };
-    const { username, password, notes } = merged;
+    const { username, password, notes, totpSecret, passkeyUsername, passkeyProvider } = merged;
     const encryptedData = await encryptVaultItem(
-      JSON.stringify({ username, password, notes }), encKey
+      JSON.stringify({ username, password, notes, totpSecret, passkeyUsername, passkeyProvider }), encKey
     );
     const { data } = await vaultApi.update(id, {
       title: merged.title, url: merged.url, favorite: merged.favorite,

@@ -81,10 +81,12 @@ application-local.yml
 application-secret.yml
 *.env
 .env
+.env.local
 
 # Database
 *.db
 *.sqlite
+*.h2.db
 
 # Logs
 logs/
@@ -102,10 +104,14 @@ docker/certs/
 web-app/node_modules/
 web-app/.next/
 web-app/out/
+web-app/.env.local
 
 # Desktop
 desktop/node_modules/
 desktop/src-tauri/target/
 
-# Legacy JavaFX desktop client (superseded by Tauri desktop)
+# Legacy JavaFX desktop client (not used)
 desktop-client/
+
+# Session state (Copilot CLI)
+.copilot/

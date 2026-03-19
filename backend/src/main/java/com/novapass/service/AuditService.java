@@ -28,10 +28,14 @@ public class AuditService {
         auditLogRepository.save(log);
     }
 
+    /**
+     * Overload that accepts a userId — uses getReferenceById (no SELECT, just a proxy)
+     * instead of findById, avoiding an extra DB round-trip.
+     */
     @Async
     public void log(Long userId, String action, String resourceType, Long resourceId,
                     String ipAddress, String userAgent) {
-        User user = userId != null ? userRepository.findById(userId).orElse(null) : null;
-        log(user, action, resourceType, resourceId, ipAddress, userAgent);
+        User userRef = userId != null ? userRepository.getReferenceById(userId) : null;
+        log(userRef, action, resourceType, resourceId, ipAddress, userAgent);
     }
 }
