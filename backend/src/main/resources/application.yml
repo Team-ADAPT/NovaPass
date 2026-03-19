@@ -1,42 +1,71 @@
 spring:
   application:
     name: novapass-backend
-  
+
   datasource:
     url: jdbc:postgresql://localhost:5432/novapass
-    username: postgres
-    password: postgres
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-  
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: validate
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-  
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
   security:
     jwt:
-      secret: ${JWT_SECRET:your-256-bit-secret-key-change-this-in-production}
-      expiration: 86400000 # 24 hours in milliseconds
-      refresh-expiration: 604800000 # 7 days in milliseconds
+      secret: ${JWT_SECRET}          # MUST be set via env — min 32 chars
+      expiration: 900000             # 15 minutes
+      refresh-expiration: 604800000  # 7 days
 
 server:
   port: 8080
   error:
-    include-message: always
-    include-binding-errors: always
+    include-message: never          # don't leak stack traces
+    include-binding-errors: never
 
 logging:
   level:
-    com.novapass: DEBUG
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: DEBUG
+    com.novapass: INFO
+    org.springframework.security: WARN
 
 cors:
-  allowed-origins: http://localhost:3000,http://localhost:8081
+  allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
   allowed-methods: GET,POST,PUT,DELETE,OPTIONS
   allowed-headers: "*"
   allow-credentials: true
+
+webauthn:
+  rp:
+    id: ${WEBAUTHN_RP_ID:localhost}
+    name: ${WEBAUTHN_RP_NAME:NovaPass}
+    origin: ${WEBAUTHN_RP_ORIGIN:http://localhost:3000}
+
+# Admin initialization (set these env vars to create admin on startup)
+admin:
+  email: ${ADMIN_EMAIL:}
+  password: ${ADMIN_PASSWORD:}
+  username: ${ADMIN_USERNAME:admin}
+
+spring.task.execution.pool:
+  core-size: 4
+  max-size: 16
+  queue-capacity: 100

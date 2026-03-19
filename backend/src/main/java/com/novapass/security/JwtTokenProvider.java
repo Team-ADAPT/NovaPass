@@ -1,5 +1,6 @@
 package com.novapass.security;
 
+import com.novapass.model.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,40 +20,66 @@ public class JwtTokenProvider {
     @Value("${spring.security.jwt.expiration}")
     private long jwtExpirationMs;
 
+    private SecretKey key() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
+
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
+        return generateTokenForUser(authentication.getName());
+    }
+
+    public String generateTokenForUser(String email) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
-
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
         return Jwts.builder()
-                .subject(username)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(key)
-                .compact();
+            .subject(email)
+            .issuedAt(now)
+            .expiration(new Date(now.getTime() + jwtExpirationMs))
+            .signWith(key())
+            .compact();
+    }
+
+    /**
+     * Generate token with user ID and role claims for better authorization support
+     */
+    public String generateTokenForUser(Long userId, String email, Role role) {
+        Date now = new Date();
+        return Jwts.builder()
+            .subject(email)
+            .claim("userId", userId)
+            .claim("role", role.name())
+            .issuedAt(now)
+            .expiration(new Date(now.getTime() + jwtExpirationMs))
+            .signWith(key())
+            .compact();
     }
 
     public String getUsernameFromToken(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.parser().verifyWith(key()).build()
+            .parseSignedClaims(token).getPayload().getSubject();
+    }
 
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser().verifyWith(key()).build()
+            .parseSignedClaims(token).getPayload();
+        return claims.get("userId", Long.class);
+    }
 
-        return claims.getSubject();
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parser().verifyWith(key()).build()
+            .parseSignedClaims(token).getPayload();
+        return claims.get("role", String.class);
     }
 
     public boolean validateToken(String token) {
         try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+            Jwts.parser().verifyWith(key()).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public long getExpirationMs() {
+        return jwtExpirationMs;
     }
 }
