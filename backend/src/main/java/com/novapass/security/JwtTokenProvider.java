@@ -34,10 +34,11 @@ public class JwtTokenProvider {
 
     public String generateTokenForUser(Long userId, String email, Role role) {
         Date now = new Date();
+        Role effectiveRole = role != null ? role : Role.USER;
         return Jwts.builder()
             .subject(email)
             .claim("userId", userId)
-            .claim("role", role.name())
+            .claim("role", effectiveRole.name())
             .issuedAt(now)
             .expiration(new Date(now.getTime() + jwtExpirationMs))
             .signWith(key())

@@ -4,6 +4,7 @@ import com.novapass.dto.AuthDTOs.*;
 import com.novapass.exception.ConflictException;
 import com.novapass.exception.ResourceNotFoundException;
 import com.novapass.model.RefreshToken;
+import com.novapass.model.Role;
 import com.novapass.model.User;
 import com.novapass.repository.RefreshTokenRepository;
 import com.novapass.repository.UserRepository;
@@ -44,6 +45,7 @@ public class AuthService {
         User user = new User();
         user.setUsername(req.getUsername());
         user.setEmail(req.getEmail());
+        user.setRole(Role.USER);
         // Store Argon2 hash of the auth key (not the raw master password)
         user.setPasswordHash(ARGON2.hash(3, 65536, 4, req.getAuthKey().toCharArray()));
         user.setMasterKeyHash(req.getMasterKeyHash());
@@ -73,6 +75,7 @@ public class AuthService {
             }
         }
 
+        ensureRole(user, false);
         user.setLastLogin(Instant.now());
         userRepository.save(user);
         auditService.log(user, "LOGIN", "user", user.getId(), ip, userAgent);
@@ -142,7 +145,8 @@ public class AuthService {
     // --- Private helpers ---
 
     private TokenResponse issueTokens(User user) {
-        String accessToken = jwtTokenProvider.generateTokenForUser(user.getId(), user.getEmail(), user.getRole());
+        Role role = ensureRole(user, true);
+        String accessToken = jwtTokenProvider.generateTokenForUser(user.getId(), user.getEmail(), role);
 
         RefreshToken rt = new RefreshToken();
         rt.setUser(user);
@@ -151,5 +155,15 @@ public class AuthService {
         refreshTokenRepository.save(rt);
 
         return new TokenResponse(accessToken, rt.getToken(), jwtTokenProvider.getExpirationMs());
+    }
+
+    private Role ensureRole(User user, boolean persistIfMissing) {
+        if (user.getRole() == null) {
+            user.setRole(Role.USER);
+            if (persistIfMissing) {
+                userRepository.save(user);
+            }
+        }
+        return user.getRole();
     }
 }
