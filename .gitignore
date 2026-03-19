@@ -93,3 +93,19 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# Environment secrets
+.env
+docker/certs/
+
+# Web app
+web-app/node_modules/
+web-app/.next/
+web-app/out/
+
+# Desktop
+desktop/node_modules/
+desktop/src-tauri/target/
+
+# Legacy JavaFX desktop client (superseded by Tauri desktop)
+desktop-client/

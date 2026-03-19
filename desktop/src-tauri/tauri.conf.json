@@ -1,0 +1,32 @@
+{
+  "productName": "NovaPass",
+  "version": "1.0.0",
+  "identifier": "com.novapass.app",
+  "build": {
+    "frontendDist": "../web-app/out",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "cd ../web-app && npm run dev",
+    "beforeBuildCommand": "cd ../web-app && npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "NovaPass",
+        "width": 1100,
+        "height": 720,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:8080 https://api.novapass.io"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/icon.icns", "icons/icon.ico"]
+  }
+}
