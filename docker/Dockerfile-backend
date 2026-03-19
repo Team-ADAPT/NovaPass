@@ -1,18 +1,14 @@
-FROM eclipse-temurin:17-jdk-alpine as build
-WORKDIR /workspace/app
-
-COPY backend/pom.xml .
-COPY backend/src src
-
-RUN apk add --no-cache maven
-RUN mvn clean package -DskipTests
+FROM eclipse-temurin:17-jdk-alpine AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY backend/pom.xml backend/
+COPY backend/src backend/src
+RUN apk add --no-cache maven && mvn -pl backend -am package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
-VOLUME /tmp
-
-ARG JAR_FILE=/workspace/app/target/*.jar
-COPY --from=build ${JAR_FILE} app.jar
-
+WORKDIR /app
+RUN addgroup -S novapass && adduser -S novapass -G novapass
+COPY --from=builder /app/backend/target/*.jar app.jar
+USER novapass
 EXPOSE 8080
-
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
