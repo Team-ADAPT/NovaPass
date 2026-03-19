@@ -1,19 +1,29 @@
 package com.novapass.util;
 
-import com.novapass.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class SecurityUtils {
 
-    private final UserRepository userRepository;
-
+    /**
+     * Extracts the user ID from the UserDetails principal.
+     * UserDetailsServiceImpl stores the principal as "id:email".
+     */
     public Long getUserId(UserDetails userDetails) {
-        return userRepository.findByEmail(userDetails.getUsername())
-            .orElseThrow(() -> new IllegalStateException("Authenticated user not found"))
-            .getId();
+        String username = userDetails.getUsername();
+        int colon = username.indexOf(':');
+        if (colon < 0) throw new IllegalStateException("Unexpected principal format: " + username);
+        return Long.parseLong(username.substring(0, colon));
+    }
+
+    /**
+     * Extracts the email from the UserDetails principal.
+     */
+    public String getEmail(UserDetails userDetails) {
+        String username = userDetails.getUsername();
+        int colon = username.indexOf(':');
+        if (colon < 0) return username;
+        return username.substring(colon + 1);
     }
 }

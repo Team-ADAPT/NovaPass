@@ -2,6 +2,7 @@ package com.novapass.controller;
 
 import com.novapass.dto.AdminDTOs.*;
 import com.novapass.service.AdminService;
+import com.novapass.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final SecurityUtils securityUtils;
 
     // ===== Dashboard Stats =====
 
@@ -87,14 +89,6 @@ public class AdminController {
     // ===== Helper Methods =====
 
     private Long extractUserId(UserDetails userDetails) {
-        // UserDetails username is the email, need to get the ID
-        // This is set by our UserDetailsServiceImpl
-        if (userDetails instanceof org.springframework.security.core.userdetails.User) {
-            // The username is the email, we need to look up the user
-            // For now, we'll use the username as a workaround
-            // A better approach would be to use a custom UserDetails implementation
-            return Long.parseLong(userDetails.getUsername().split(":")[0]);
-        }
-        throw new IllegalStateException("Unable to extract user ID");
+        return securityUtils.getUserId(userDetails);
     }
 }
