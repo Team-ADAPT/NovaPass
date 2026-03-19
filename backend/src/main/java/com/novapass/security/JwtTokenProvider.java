@@ -19,8 +19,17 @@ public class JwtTokenProvider {
     @Value("${spring.security.jwt.expiration}")
     private long jwtExpirationMs;
 
+    // Built once at first use — avoids re-deriving the key on every request
+    private volatile SecretKey cachedKey;
+
     private SecretKey key() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        if (cachedKey == null) {
+            synchronized (this) {
+                if (cachedKey == null)
+                    cachedKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+        return cachedKey;
     }
 
     public String generateTokenForUser(Long userId, String email, Role role) {
@@ -55,6 +64,12 @@ public class JwtTokenProvider {
         Claims claims = Jwts.parser().verifyWith(key()).build()
             .parseSignedClaims(token).getPayload();
         return claims.get("userId", Long.class);
+    }
+
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parser().verifyWith(key()).build()
+            .parseSignedClaims(token).getPayload();
+        return claims.get("role", String.class);
     }
 
     public boolean validateToken(String token) {

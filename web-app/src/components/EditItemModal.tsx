@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { VaultEntry, useVaultStore } from '@/store/vaultStore';
-import { CreditCard, Eye, EyeOff, FileText, Globe, KeyRound, RefreshCw, ShieldCheck, X } from 'lucide-react';
+import { CreditCard, Eye, EyeOff, FileText, Globe, KeyRound, RefreshCw, ScanFace, ShieldCheck, X } from 'lucide-react';
 import PasswordStrengthMeter from './PasswordStrengthMeter';
 
 type FormData = {
@@ -13,6 +13,9 @@ type FormData = {
   password: string;
   url: string;
   notes: string;
+  totpSecret: string;
+  passkeyUsername: string;
+  passkeyProvider: string;
 };
 
 function generatePassword(length = 20): string {
@@ -42,6 +45,9 @@ export default function EditItemModal({ item, onClose }: EditItemModalProps) {
       password: item.password || '',
       url: item.url || '',
       notes: item.notes || '',
+      totpSecret: item.totpSecret || '',
+      passkeyUsername: item.passkeyUsername || '',
+      passkeyProvider: item.passkeyProvider || '',
     }
   });
 
@@ -57,6 +63,9 @@ export default function EditItemModal({ item, onClose }: EditItemModalProps) {
       password: item.password || '',
       url: item.url || '',
       notes: item.notes || '',
+      totpSecret: item.totpSecret || '',
+      passkeyUsername: item.passkeyUsername || '',
+      passkeyProvider: item.passkeyProvider || '',
     });
   }, [item, reset]);
 
@@ -71,6 +80,9 @@ export default function EditItemModal({ item, onClose }: EditItemModalProps) {
         username: data.username,
         password: data.password,
         notes: data.notes,
+        totpSecret: data.totpSecret,
+        passkeyUsername: data.passkeyUsername,
+        passkeyProvider: data.passkeyProvider,
       });
       onClose();
     } catch (err: any) {
@@ -110,6 +122,8 @@ export default function EditItemModal({ item, onClose }: EditItemModalProps) {
                 <option value="login">Login</option>
                 <option value="card">Card</option>
                 <option value="note">Secure Note</option>
+                <option value="totp">2FA / TOTP</option>
+                <option value="passkey">Passkey</option>
               </select>
             </div>
 
@@ -221,6 +235,53 @@ export default function EditItemModal({ item, onClose }: EditItemModalProps) {
                 </div>
               )}
 
+              {itemType === 'totp' && (
+                <>
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Website</span>
+                    <div className="relative">
+                      <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input {...register('url')} placeholder="https://example.com" className={`${fieldClassName} pl-11`} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">TOTP Secret Key</span>
+                    <input
+                      {...register('totpSecret')}
+                      placeholder="Base32 secret (e.g. JBSWY3DPEHPK3PXP)"
+                      className={fieldClassName}
+                    />
+                  </div>
+                </>
+              )}
+
+              {itemType === 'passkey' && (
+                <>
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Website</span>
+                    <div className="relative">
+                      <Globe size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input {...register('url')} placeholder="https://example.com" className={`${fieldClassName} pl-11`} />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Account / Username</span>
+                    <input {...register('passkeyUsername')} placeholder="name@example.com" className={fieldClassName} />
+                  </div>
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Passkey Provider</span>
+                    <select {...register('passkeyProvider')} className={fieldClassName}>
+                      <option value="">Select provider...</option>
+                      <option value="Google">Google Passkey</option>
+                      <option value="Apple">Apple Passkey (Face ID / Touch ID)</option>
+                      <option value="Microsoft">Microsoft Passkey</option>
+                      <option value="Hardware Key">Hardware Key (YubiKey etc.)</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
                 <span className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
                   Notes
@@ -237,7 +298,7 @@ export default function EditItemModal({ item, onClose }: EditItemModalProps) {
             <aside className="rounded-[28px] border border-[rgba(20,32,45,0.08)] bg-white/72 p-5">
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-emerald-500/10 p-2 text-emerald-700">
-                  {itemType === 'login' ? <KeyRound size={16} /> : itemType === 'card' ? <CreditCard size={16} /> : <FileText size={16} />}
+                  {itemType === 'login' ? <KeyRound size={16} /> : itemType === 'card' ? <CreditCard size={16} /> : itemType === 'totp' ? <ShieldCheck size={16} /> : itemType === 'passkey' ? <ScanFace size={16} /> : <FileText size={16} />}
                 </div>
                 <div>
                   <p className="font-semibold text-slate-900">Update preview</p>

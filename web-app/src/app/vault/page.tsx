@@ -9,10 +9,12 @@ import {
   CreditCard,
   FileKey2,
   FileText,
+  Fingerprint,
   Heart,
   Key,
   LogOut,
   Plus,
+  ScanFace,
   Search,
   Settings,
   Shield,
@@ -28,6 +30,8 @@ const CATEGORIES = [
   { label: 'Logins', value: 'login', icon: Key },
   { label: 'Cards', value: 'card', icon: CreditCard },
   { label: 'Notes', value: 'note', icon: FileText },
+  { label: '2FA', value: 'totp', icon: ShieldCheck },
+  { label: 'Passkeys', value: 'passkey', icon: Fingerprint },
 ];
 
 export default function VaultPage() {
@@ -83,17 +87,20 @@ export default function VaultPage() {
     if (category === 'favorite') return item.favorite;
     if (category && item.itemType !== category) return false;
     if (search) {
-      const searchLower = search.toLowerCase();
-      return item.title.toLowerCase().includes(searchLower) ||
-             item.url?.toLowerCase().includes(searchLower) ||
-             item.username?.toLowerCase().includes(searchLower);
+      const s = search.toLowerCase();
+      return item.title.toLowerCase().includes(s) ||
+             item.url?.toLowerCase().includes(s) ||
+             item.username?.toLowerCase().includes(s) ||
+             item.passkeyUsername?.toLowerCase().includes(s) ||
+             item.passkeyProvider?.toLowerCase().includes(s);
     }
     return true;
   });
 
   const favoriteCount = items.filter(item => item.favorite).length;
   const loginCount = items.filter(item => item.itemType === 'login').length;
-  const noteCount = items.filter(item => item.itemType === 'note').length;
+  const totpCount = items.filter(item => item.itemType === 'totp').length;
+  const passkeyCount = items.filter(item => item.itemType === 'passkey').length;
 
   const handleLogout = async () => {
     await authApi.logout().catch(() => null);
@@ -153,7 +160,7 @@ export default function VaultPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setShowAdd(true)}
                   className="flex items-center justify-center gap-2 rounded-[22px] bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
@@ -187,21 +194,32 @@ export default function VaultPage() {
               </div>
             </div>
 
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
               <div className="rounded-[26px] border border-white/70 bg-white/70 p-5">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Total entries</p>
                 <p className="mt-4 text-4xl text-slate-900">{items.length}</p>
-                <p className="mt-2 text-sm text-slate-500">Across logins, notes, and cards.</p>
+                <p className="mt-2 text-sm text-slate-500">Across all item types.</p>
               </div>
               <div className="rounded-[26px] border border-white/70 bg-white/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Favorite items</p>
-                <p className="mt-4 text-4xl text-slate-900">{favoriteCount}</p>
-                <p className="mt-2 text-sm text-slate-500">Pinned for fast retrieval.</p>
-              </div>
-              <div className="rounded-[26px] border border-white/70 bg-white/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Login records</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Logins</p>
                 <p className="mt-4 text-4xl text-slate-900">{loginCount}</p>
-                <p className="mt-2 text-sm text-slate-500">{noteCount} secure notes currently stored.</p>
+                <p className="mt-2 text-sm text-slate-500">{favoriteCount} pinned as favorites.</p>
+              </div>
+              <div className="rounded-[26px] border border-white/70 bg-white/70 p-5">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck size={14} className="text-emerald-700" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">2FA codes</p>
+                </div>
+                <p className="mt-4 text-4xl text-slate-900">{totpCount}</p>
+                <p className="mt-2 text-sm text-slate-500">Live TOTP authenticators.</p>
+              </div>
+              <div className="rounded-[26px] border border-white/70 bg-white/70 p-5">
+                <div className="flex items-center gap-2">
+                  <ScanFace size={14} className="text-emerald-700" />
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Passkeys</p>
+                </div>
+                <p className="mt-4 text-4xl text-slate-900">{passkeyCount}</p>
+                <p className="mt-2 text-sm text-slate-500">Passwordless credentials.</p>
               </div>
             </div>
           </div>
