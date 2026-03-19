@@ -3,7 +3,7 @@ WORKDIR /app
 COPY pom.xml .
 COPY backend/pom.xml backend/
 COPY backend/src backend/src
-RUN apk add --no-cache maven && mvn -pl backend -am package -DskipTests
+RUN apk add --no-cache maven && mvn -pl backend -am spring-boot:repackage -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
