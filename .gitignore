@@ -116,6 +116,14 @@ desktop-client/
 # Session state (Copilot CLI)
 .copilot/
 
-# Personal setup notes (may contain credentials)
+# Personal / session-specific files (may contain credentials or local paths)
 DATABASE_SETUP_YOURS.md
 DATA_STORAGE_EXPLAINED.md
+AUTHENTICATION_FIX.md
+RUNNING_OLD.md
+CLEANUP_SUMMARY.md
+LOCAL_SETUP.md
+fix-env.sh
+verify-auth-fix.sh
+start-backend.sh
+*.backup

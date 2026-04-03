@@ -1,6 +1,9 @@
 #!/bin/bash
+set -e
 
-echo "🚀 Starting NovaPass Desktop Client..."
+cd "$(dirname "$0")/../web-app"
 
-cd desktop-client
-mvn javafx:run
+[ -f "node_modules/.bin/next" ] || npm install
+
+echo "Starting web app on http://localhost:3000 ..."
+npm run dev

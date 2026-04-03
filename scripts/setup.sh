@@ -1,27 +1,18 @@
 #!/bin/bash
+# One-time setup: verify prerequisites and install dependencies.
+set -e
 
-echo "🚀 Setting up NovaPass..."
+command -v java  >/dev/null 2>&1 || { echo "Java 17+ required. Install from https://adoptium.net"; exit 1; }
+command -v mvn   >/dev/null 2>&1 || { echo "Maven required. Run: brew install maven"; exit 1; }
+command -v node  >/dev/null 2>&1 || { echo "Node 18+ required. Install from https://nodejs.org"; exit 1; }
 
-# Check Java installation
-if ! command -v java &> /dev/null; then
-    echo "❌ Java is not installed. Please install Java 17 or higher."
-    exit 1
-fi
+echo "Installing backend dependencies..."
+cd "$(dirname "$0")/../backend" && mvn dependency:resolve -q
 
-# Check Maven installation
-if ! command -v mvn &> /dev/null; then
-    echo "❌ Maven is not installed. Please install Maven 3.8+."
-    exit 1
-fi
+echo "Installing frontend dependencies..."
+cd "../web-app" && npm install
 
-echo "✅ Java and Maven are installed"
-
-# Install dependencies
-echo "📦 Installing dependencies..."
-mvn clean install -DskipTests
-
-echo "✅ Setup complete!"
 echo ""
-echo "To run the backend: ./scripts/run-backend.sh"
-echo "To run the desktop client: ./scripts/run-client.sh"
-echo "To run with Docker: docker-compose -f docker/docker-compose.yml up"
+echo "Setup complete."
+echo "  Start backend : ./scripts/run-backend.sh"
+echo "  Start frontend: ./scripts/run-client.sh"

@@ -40,7 +40,11 @@ async function deriveKeys(masterPassword: string, saltHex: string) {
     'raw', encKeyBytes, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
   );
 
-  return { authKey: bytesToHex(authKeyBytes), encKey };
+  // masterKeyHash is a hex representation of the encryption key bytes
+  // Used for server-side verification without exposing the actual encryption key
+  const masterKeyHash = bytesToHex(encKeyBytes);
+
+  return { authKey: bytesToHex(authKeyBytes), encKey, masterKeyHash };
 }
 
 async function encryptVaultItem(plaintext: string, encKey: CryptoKey): Promise<string> {

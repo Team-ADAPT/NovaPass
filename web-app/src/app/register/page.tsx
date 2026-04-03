@@ -49,13 +49,13 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const salt = generateSalt();
-      const { authKey, encKey } = await deriveKeys(data.password, salt);
+      const { authKey, encKey, masterKeyHash } = await deriveKeys(data.password, salt);
 
       const { data: tokens } = await authApi.register({
         username: data.username,
         email: data.email,
         authKey,
-        masterKeyHash: authKey, // server stores hash of authKey
+        masterKeyHash,
         salt,
       });
 
