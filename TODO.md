@@ -120,8 +120,8 @@ ADMIN_USERNAME=admin
 # Terminal 1 — backend (with admin user creation)
 cd backend
 JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home \
-  ADMIN_EMAIL=admin@novapass.local \
-  ADMIN_PASSWORD=REDACTED_ADMIN_PASSWORD \
+  ADMIN_EMAIL=admin@example.com \
+  ADMIN_PASSWORD=<your-strong-password> \
   mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 # Terminal 2 — web app

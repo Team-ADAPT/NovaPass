@@ -115,3 +115,7 @@ desktop-client/
 
 # Session state (Copilot CLI)
 .copilot/
+
+# Personal setup notes (may contain credentials)
+DATABASE_SETUP_YOURS.md
+DATA_STORAGE_EXPLAINED.md

@@ -114,7 +114,7 @@ DB_USERNAME=postgres
 DB_PASSWORD=postgres
 
 # JWT Secret (generate with: openssl rand -hex 32)
-JWT_SECRET=REDACTED_JWT_SECRET
+JWT_SECRET=$(openssl rand -hex 32)  # generate your own
 
 # CORS (allow frontend)
 CORS_ORIGINS=http://localhost:3000
@@ -125,8 +125,8 @@ WEBAUTHN_RP_NAME=NovaPass
 WEBAUTHN_RP_ORIGIN=http://localhost:3000
 
 # Admin Account (optional - creates admin on startup)
-ADMIN_EMAIL=admin@novapass.local
-ADMIN_PASSWORD=REDACTED_ADMIN_PASSWORD
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=<your-strong-password>
 ADMIN_USERNAME=admin
 
 # Redis (optional - only for production mode)
@@ -161,8 +161,8 @@ export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 # With admin creation
-ADMIN_EMAIL=admin@novapass.local \
-ADMIN_PASSWORD=REDACTED_ADMIN_PASSWORD \
+ADMIN_EMAIL=admin@example.com \
+ADMIN_PASSWORD=<your-strong-password> \
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
@@ -190,8 +190,8 @@ export DB_USERNAME=postgres
 export DB_PASSWORD=postgres
 export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/novapass
 export JWT_SECRET=$(openssl rand -hex 32)
-export ADMIN_EMAIL=admin@novapass.local
-export ADMIN_PASSWORD=REDACTED_ADMIN_PASSWORD
+export ADMIN_EMAIL=admin@example.com
+export ADMIN_PASSWORD=<your-strong-password>
 
 # Set JAVA_HOME
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
@@ -256,8 +256,8 @@ You should see the NovaPass login page.
 
 1. **Logout** (if logged in)
 2. **Login** with admin credentials:
-   - Email: `admin@novapass.local`
-   - Password: `REDACTED_ADMIN_PASSWORD`
+   - Email: `admin@example.com`
+   - Password: `<your-strong-password>`
 3. Click **Admin** button in vault
 4. Should see admin dashboard
 

@@ -159,8 +159,8 @@ CORS_ORIGINS=http://localhost:3000
 WEBAUTHN_RP_ID=localhost
 WEBAUTHN_RP_NAME=NovaPass
 WEBAUTHN_RP_ORIGIN=http://localhost:3000
-ADMIN_EMAIL=admin@novapass.local
-ADMIN_PASSWORD=REDACTED_ADMIN_PASSWORD
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=<your-strong-password>
 ```
 
 Create `web-app/.env.local`:
