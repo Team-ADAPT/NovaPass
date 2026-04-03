@@ -28,7 +28,7 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: docker/Dockerfile-backend
+      dockerfile: docker/Dockerfile.backend
     container_name: novapass-backend
     environment:
       DB_USERNAME: ${DB_USERNAME:-postgres}

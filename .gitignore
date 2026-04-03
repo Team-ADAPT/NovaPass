@@ -105,6 +105,7 @@ web-app/node_modules/
 web-app/.next/
 web-app/out/
 web-app/.env.local
+web-app/tsconfig.tsbuildinfo
 
 # Desktop
 desktop/node_modules/
