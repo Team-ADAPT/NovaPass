@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,8 +20,7 @@ import java.util.List;
  * Validates the JWT and builds the Authentication principal entirely from token
  * claims — no database query per request.
  *
- * Principal format stored in the username field: "userId:email"
- * (matches the format UserDetailsServiceImpl produces, so SecurityUtils.getUserId works unchanged)
+ * Principal username format: "userId:email" (matches UserDetailsServiceImpl)
  */
 @Component
 @RequiredArgsConstructor
@@ -39,12 +39,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String email  = tokenProvider.getUsernameFromToken(jwt);
                 String role   = tokenProvider.getRoleFromToken(jwt);
 
-                // Build principal in "userId:email" format — no DB lookup needed
-                String principal = userId + ":" + email;
+                // Build a UserDetails principal in "userId:email" format
+                String principalUsername = userId + ":" + email;
                 String authority = StringUtils.hasText(role) ? "ROLE_" + role : "ROLE_USER";
+                User principal = new User(
+                    principalUsername,
+                    "",
+                    List.of(new SimpleGrantedAuthority(authority))
+                );
 
                 var auth = new UsernamePasswordAuthenticationToken(
-                    principal, null, List.of(new SimpleGrantedAuthority(authority))
+                    principal, null, principal.getAuthorities()
                 );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

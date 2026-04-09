@@ -45,7 +45,7 @@ public class AuthController {
 
     // Client calls this first to get the salt needed for key derivation
     @GetMapping("/salt")
-    public ResponseEntity<SaltResponse> getSalt(@RequestParam String email) {
+    public ResponseEntity<SaltResponse> getSalt(@RequestParam("email") String email) {
         return ResponseEntity.ok(authService.getSalt(email));
     }
 
