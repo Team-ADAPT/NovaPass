@@ -64,7 +64,7 @@ export default function RegisterPage() {
       setEncKey(encKey);
       router.push('/vault');
     } catch (e: any) {
-      setError(e.response?.data?.message || 'Registration failed');
+      setError(e.response?.data?.message || e.response?.data?.error || e.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

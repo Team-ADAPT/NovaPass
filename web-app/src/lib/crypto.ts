@@ -33,8 +33,8 @@ async function deriveKeys(masterPassword: string, saltHex: string) {
   );
 
   const half = bits.byteLength / 2;
-  const authKeyBytes = new Uint8Array(bits, 0, half);
-  const encKeyBytes  = new Uint8Array(bits, half);
+  const authKeyBytes = new Uint8Array(bits.slice(0, half));
+  const encKeyBytes  = new Uint8Array(bits.slice(half));
 
   const encKey = await crypto.subtle.importKey(
     'raw', encKeyBytes, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
