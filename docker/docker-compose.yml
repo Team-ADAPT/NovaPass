@@ -24,6 +24,11 @@ services:
     volumes:
       - redis_data:/data
     networks: [novapass]
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redispass}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -39,9 +44,16 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
     depends_on:
-      postgres: { condition: service_healthy }
-      redis: { condition: service_started }
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks: [novapass]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
 
   web:
@@ -51,6 +63,9 @@ services:
     container_name: novapass-web
     environment:
       NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost/api}
+    depends_on:
+      backend:
+        condition: service_healthy
     networks: [novapass]
     restart: unless-stopped
 

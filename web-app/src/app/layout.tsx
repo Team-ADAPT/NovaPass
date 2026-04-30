@@ -29,6 +29,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+import SyncManager from '@/components/SyncManager';
+import ConflictResolutionModal from '@/components/ConflictResolutionModal';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -51,6 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
+        <SyncManager />
+        <ConflictResolutionModal />
         <div className="app-shell">{children}</div>
       </body>
     </html>

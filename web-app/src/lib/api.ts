@@ -71,6 +71,18 @@ export const passkeyApi = {
     api.put(`/api/auth/passkey/${passkeyId}/name`, { passkeyId, newName }),
 };
 
+export const syncApi = {
+  registerDevice: (body: { deviceId: string; deviceName: string; deviceType: string }) => 
+    api.post('/api/sync/devices/register', body),
+  listDevices: () => api.get('/api/sync/devices'),
+  unregisterDevice: (deviceId: string) => api.post(`/api/sync/devices/unregister/${deviceId}`),
+  resolveConflict: (itemId: number, body: { resolution: string; encryptedData?: string }) => 
+    api.post(`/api/sync/conflicts/${itemId}/resolve`, body),
+  getConflicts: () => api.get('/api/sync/conflicts'),
+  vaultSync: (body: { deviceId: string; lastSyncAt: string | null }) => 
+    api.post('/api/sync/vault', body),
+};
+
 export const vaultApi = {
   getAll: () => api.get('/api/vault'),
   create: (body: object) => api.post('/api/vault', body),

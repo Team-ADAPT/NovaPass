@@ -51,13 +51,15 @@ public class AdminInitializer {
                 return;
             }
 
-            // Check if admin already exists
-            if (userRepository.findByEmail(adminEmail).isPresent()) {
-                log.info("Admin user already exists with email: {}", adminEmail);
-                return;
-            }
-
             try {
+                String email = adminEmail.toLowerCase().trim();
+                
+                // Check if admin already exists (check again after lowercasing)
+                if (userRepository.findByEmail(email).isPresent()) {
+                    log.info("Admin user already exists with email: {}", email);
+                    return;
+                }
+
                 // Generate random salt (32 bytes = 64 hex chars, same as frontend)
                 byte[] saltBytes = new byte[32];
                 new SecureRandom().nextBytes(saltBytes);
@@ -79,7 +81,7 @@ public class AdminInitializer {
                 // Create admin user
                 User admin = new User();
                 admin.setUsername(adminUsername);
-                admin.setEmail(adminEmail);
+                admin.setEmail(email);
                 admin.setRole(Role.ADMIN);
                 admin.setSalt(salt);
                 admin.setMasterKeyHash(masterKeyHash);

@@ -1,5 +1,5 @@
--- NovaPass Database Schema
 
+-- NovaPass Database Schema
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,

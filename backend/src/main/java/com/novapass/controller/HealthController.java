@@ -12,8 +12,25 @@ import java.util.Map;
 @RequestMapping("/api")
 public class HealthController {
 
+    private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
+    public HealthController(org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
-        return ResponseEntity.ok(Map.of("status", "UP", "timestamp", Instant.now()));
+        String dbStatus = "UP";
+        try {
+            jdbcTemplate.execute("SELECT 1");
+        } catch (Exception e) {
+            dbStatus = "DOWN: " + e.getMessage();
+        }
+        
+        return ResponseEntity.ok(Map.of(
+            "status", dbStatus.startsWith("UP") ? "UP" : "DOWN",
+            "database", dbStatus,
+            "timestamp", Instant.now()
+        ));
     }
 }

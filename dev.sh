@@ -40,9 +40,17 @@ cd "$SCRIPT_DIR/backend"
 mvn spring-boot:run -Dspring-boot.run.profiles=dev &
 BACKEND_PID=$!
 
+# Wait for backend to be ready
+echo "⏳ Waiting for backend to be healthy..."
+while ! curl -s http://localhost:8080/api/health > /dev/null; do
+  sleep 1
+done
+echo "✅ Backend is UP"
+
 # Start frontend
 echo "🌐 Starting frontend..."
 cd "$SCRIPT_DIR/web-app"
+export NEXT_PUBLIC_API_URL="http://localhost:8080"
 [ -d "node_modules" ] || npm install
 npm run dev &
 FRONTEND_PID=$!

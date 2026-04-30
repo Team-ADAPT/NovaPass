@@ -37,14 +37,15 @@ public class AuthService {
 
     @Transactional
     public TokenResponse register(RegisterRequest req) {
-        if (userRepository.existsByEmail(req.getEmail()))
+        String email = req.getEmail().toLowerCase().trim();
+        if (userRepository.existsByEmail(email))
             throw new ConflictException("Email already registered");
         if (userRepository.existsByUsername(req.getUsername()))
             throw new ConflictException("Username already taken");
 
         User user = new User();
         user.setUsername(req.getUsername());
-        user.setEmail(req.getEmail());
+        user.setEmail(email);
         user.setRole(Role.USER);
         // Store Argon2 hash of the auth key (not the raw master password)
         user.setPasswordHash(ARGON2.hash(3, 65536, 4, req.getAuthKey().toCharArray()));
@@ -58,7 +59,8 @@ public class AuthService {
 
     @Transactional
     public TokenResponse login(LoginRequest req, String ip, String userAgent) {
-        User user = userRepository.findByEmail(req.getEmail())
+        String email = req.getEmail().toLowerCase().trim();
+        User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
 
         if (!user.isActive())
@@ -103,7 +105,8 @@ public class AuthService {
     }
 
     public SaltResponse getSalt(String email) {
-        User user = userRepository.findByEmail(email)
+        String cleanedEmail = email.toLowerCase().trim();
+        User user = userRepository.findByEmail(cleanedEmail)
             .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return new SaltResponse(user.getSalt(), user.isTwoFactorEnabled());
     }
