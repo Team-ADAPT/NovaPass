@@ -18,7 +18,7 @@ fi
 set -a; source "$SCRIPT_DIR/.env"; set +a
 
 # Validate required vars
-for var in JWT_SECRET SPRING_DATASOURCE_URL DB_USERNAME DB_PASSWORD; do
+for var in JWT_SECRET SPRING_DATASOURCE_URL DB_USERNAME; do
   [ -z "${!var}" ] && echo "❌ $var not set in .env" && exit 1
 done
 
@@ -34,8 +34,17 @@ cleanup() {
 }
 trap cleanup INT TERM
 
+# Check if Database is accessible
+echo "🔍 Checking database connection..."
+if ! psql -d novapass -c "SELECT 1" &> /dev/null; then
+  echo "❌ Local database 'novapass' is not accessible."
+  echo "   Make sure PostgreSQL is running: brew services start postgresql@15"
+  exit 1
+fi
+echo "✅ Database is accessible"
+
 # Start backend
-echo "🚀 Starting backend..."
+echo "🚀 Starting backend with local database..."
 cd "$SCRIPT_DIR/backend"
 mvn spring-boot:run -Dspring-boot.run.profiles=dev &
 BACKEND_PID=$!

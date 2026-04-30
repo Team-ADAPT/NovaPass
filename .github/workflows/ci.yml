@@ -21,7 +21,7 @@ jobs:
           cache: maven
 
       - name: Build & test
-        run: cd backend && mvn clean verify
+        run: mvn clean verify -pl backend -am
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
@@ -44,6 +44,8 @@ jobs:
 
       - name: Install & build
         run: cd web-app && npm ci && npm run build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
 
   docker:
     name: Docker — Build image
@@ -57,4 +59,7 @@ jobs:
         run: docker build -f docker/Dockerfile.backend -t novapass-backend:latest .
 
       - name: Build frontend image
-        run: docker build -f web-app/Dockerfile -t novapass-web:latest ./web-app
+        run: |
+          docker build -f web-app/Dockerfile \
+            --build-arg NEXT_PUBLIC_API_URL=http://localhost/api \
+            -t novapass-web:latest ./web-app
